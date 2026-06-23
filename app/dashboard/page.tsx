@@ -131,7 +131,7 @@ function RecruitmentContent() {
           onClick={() => setShowRecruitForm(false)}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-2 shadow-[0_28px_70px_-28px_rgba(15,23,42,0.45)]"
+            className="w-full max-w-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <RecruitMemberForm
@@ -150,12 +150,11 @@ function DashboardContent() {
   const [assistantActiveItem, setAssistantActiveItem] = useState<AssistantSidebarItemId>('dashboard');
   const [directorActiveItem, setDirectorActiveItem] = useState<DirectorSidebarItemId>('dashboard');
   const [projects, setProjects] = useState<Project[]>([]);
+  const [token] = useState<string | null>(() => getAuthToken());
 
   useEffect(() => {
     async function load() {
-      const token = getAuthToken();
       if (!token) return;
-
       try {
         const rows = await fetchProjectsFromApi(token);
         setProjects(rows);
@@ -163,9 +162,8 @@ function DashboardContent() {
         // Keep dashboard render stable even if API is temporarily unavailable.
       }
     }
-
     load();
-  }, []);
+  }, [token]);
 
   const content = user?.role === 'director'
     ? (

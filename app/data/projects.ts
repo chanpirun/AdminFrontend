@@ -12,8 +12,12 @@ export type Project = {
   description: string;
   demoLink?: string;
   pdf?: string;
+  pdfs?: string[];
   sourceZip?: string;
+  sourceZips?: string[];
   dataset?: string;
+  datasets?: string[];
+  finalDocuments?: string[];
   projectImages?: string[];
   status: ProjectStatus;
   reviewComment?: string;

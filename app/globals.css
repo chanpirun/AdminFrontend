@@ -1,26 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
+html, body {
   height: 100%;
 }
 
@@ -28,5 +14,94 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Professional Minimalist Dark Theme ── */
+.login-bg-pro {
+  background-color: #000000;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.4) 0%, transparent 50%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-bg-pro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
+  pointer-events: none;
+}
+
+/* Sleek Card */
+.pro-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1);
+}
+
+/* Professional Inputs */
+.pro-input {
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+.pro-input::placeholder { color: #64748b; }
+.pro-input:focus {
+  outline: none;
+  background: #171717;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* High Contrast Button */
+.btn-pro {
+  background: #ffffff;
+  color: #000000;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px 0 rgba(255, 255, 255, 0.1);
+}
+.btn-pro:hover:not(:disabled) {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+.btn-pro:active:not(:disabled) {
+  transform: translateY(0px);
+}
+.btn-pro:disabled {
+  background: #333333;
+  color: #666666;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Subtle animations */
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up { animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.slide-up-delay-1 { animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+.slide-up-delay-2 { animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555555; }
+
+/* Suppress browser password reveal icons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container { display: none !important; }

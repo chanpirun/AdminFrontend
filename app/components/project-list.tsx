@@ -1,12 +1,5 @@
 import { Calendar, Globe, Lock, Search, User } from "lucide-react";
-import Image from "next/image";
 import type { Project } from "@/data/projects";
-
-export type { Project };
-
-function shouldBypassImageOptimization(src: string): boolean {
-  return src.startsWith("http://127.0.0.1") || src.startsWith("http://localhost");
-}
 
 const tagColors = [
   "bg-indigo-50 text-indigo-700 border border-indigo-100",
@@ -90,13 +83,11 @@ function ProjectCard({
 
       <div className="relative z-10 grid gap-8 p-7 md:grid-cols-[320px_1fr]">
         <div className="relative h-60 overflow-hidden rounded-3xl">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             alt={project.title}
-            className="object-cover transition duration-700 group-hover:scale-110"
-            fill
-            sizes="(min-width: 768px) 320px, 100vw"
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
             src={project.coverImage}
-            unoptimized={shouldBypassImageOptimization(project.coverImage)}
           />
           {showVisibility && (
             <span
