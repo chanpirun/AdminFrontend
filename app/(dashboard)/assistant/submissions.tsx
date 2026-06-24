@@ -129,20 +129,31 @@ export default function Submissions() {
       return;
     }
 
-    const response = await fetch(`/api/submissions/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const payload = await response.json();
-    if (!response.ok) {
-      setError(payload?.message ?? "Failed to delete submission.");
-      return;
-    }
+    try {
+      const response = await fetch(`/api/submissions/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    setList((prev) => prev.filter((p) => p.id !== id));
-    setSelected((prev) => (prev?.id === id ? null : prev));
+      let payload: { message?: string } = {};
+      try {
+        payload = await response.json();
+      } catch {
+        // response may have no body on success
+      }
+
+      if (!response.ok) {
+        setError(payload?.message ?? `Failed to delete submission (status ${response.status}).`);
+        return;
+      }
+
+      setList((prev) => prev.filter((p) => p.id !== id));
+      setSelected((prev) => (prev?.id === id ? null : prev));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error — could not delete submission.");
+    }
   }
 
   return (
