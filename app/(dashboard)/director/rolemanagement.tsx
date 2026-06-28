@@ -58,9 +58,8 @@ export default function RoleManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://127.0.0.1:8000/api';
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+  const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
 
   const fetchUsers = async () => {
     setLoading(true);

@@ -27,9 +27,8 @@ export function RecruitMemberForm({
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://127.0.0.1:8000/api';
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+  const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
