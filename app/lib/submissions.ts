@@ -42,20 +42,6 @@ export function getAuthToken(): string | null {
   return localStorage.getItem("auth_token");
 }
 
-function toAbsoluteFileUrl(path: string | null | undefined): string | undefined {
-  if (!path) return undefined;
-  const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
-  return `${backendBaseUrl}/storage/${path}`;
-}
-
-function toAbsoluteFileUrls(
-  paths: (string | null | undefined)[] | null | undefined,
-): string[] {
-  return (paths ?? [])
-    .map((path) => toAbsoluteFileUrl(path))
-    .filter((path): path is string => Boolean(path));
-}
-
 export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
   const pdfs = item.document_urls ?? [];
   const sourceZips = item.source_code_urls ?? [];
