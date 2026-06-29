@@ -7,17 +7,18 @@ function backendBaseUrl() {
 export async function POST(request: NextRequest) {
   try {
     const authorization = request.headers.get("authorization") ?? "";
-    const formData = await request.formData();
 
     const upstream = await fetch(`${backendBaseUrl()}/api/upload`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         Authorization: authorization,
+        "Content-Type": request.headers.get("content-type") ?? "multipart/form-data",
       },
-      body: formData,
+      body: request.body,
+      duplex: "half",
       cache: "no-store",
-    });
+    } as any);
 
     const contentType = upstream.headers.get("content-type") ?? "";
     const body = contentType.includes("application/json")
