@@ -7,9 +7,9 @@ import SubmissionReviewModal from "@/components/submission-review-modal";
 import { useAuth } from "@/context/AuthContext";
 import {
   fetchProjectsFromApi,
-  getAuthToken,
   mapSubmissionToProject,
 } from "@/lib/submissions";
+
 
 function StatusBadge({ status }: { status: ProjectStatus }) {
   const styles: Record<ProjectStatus, string> = {
@@ -47,12 +47,11 @@ export default function Submissions() {
   const [selected, setSelected] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [token] = useState<string | null>(() => getAuthToken());
-  const { clearSession } = useAuth();
+  const { user, clearSession } = useAuth();
 
   useEffect(() => {
     async function load() {
-      if (!token) {
+      if (!user) {
         setError("Session expired. Please log in again.");
         setLoading(false);
         return;
@@ -60,7 +59,7 @@ export default function Submissions() {
       setLoading(true);
       setError(null);
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setList(rows);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to load submissions.";
@@ -73,8 +72,9 @@ export default function Submissions() {
         setLoading(false);
       }
     }
+
     load();
-  }, [token]);
+  }, [user]);
 
   const counts: Record<FilterTab, number> = {
     all: list.length,
@@ -91,7 +91,7 @@ export default function Submissions() {
     status: ProjectStatus,
     comment: string,
   ) {
-    if (!token) {
+    if (!user) {
       setError("Please sign in again to update submissions.");
       return;
     }
@@ -100,7 +100,6 @@ export default function Submissions() {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         status,
@@ -124,7 +123,7 @@ export default function Submissions() {
     );
     if (!confirmed) return;
 
-    if (!token) {
+    if (!user) {
       setError("Please sign in again to delete submissions.");
       return;
     }
@@ -132,9 +131,6 @@ export default function Submissions() {
     try {
       const response = await fetch(`/api/submissions/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       let payload: { message?: string } = {};

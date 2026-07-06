@@ -14,8 +14,9 @@ import RoleManagement from '@/(dashboard)/director/rolemanagement';
 import { RecruitMemberForm } from '@/components/recruit-member-form';
 import { MembersTable } from '@/components/members-table';
 import { users } from '@/data/users';
-import { fetchProjectsFromApi, getAuthToken } from '@/lib/submissions';
+import { fetchProjectsFromApi } from '@/lib/submissions';
 import type { Project } from '@/data/projects';
+
 
 function AssistantDashboard({ projects }: { projects: Project[] }) {
   const total = projects.length;
@@ -150,20 +151,19 @@ function DashboardContent() {
   const [assistantActiveItem, setAssistantActiveItem] = useState<AssistantSidebarItemId>('dashboard');
   const [directorActiveItem, setDirectorActiveItem] = useState<DirectorSidebarItemId>('dashboard');
   const [projects, setProjects] = useState<Project[]>([]);
-  const [token] = useState<string | null>(() => getAuthToken());
 
   useEffect(() => {
     async function load() {
-      if (!token) return;
+      if (!user) return;
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setProjects(rows);
       } catch {
         // Keep dashboard render stable even if API is temporarily unavailable.
       }
     }
     load();
-  }, [token]);
+  }, [user]);
 
   const content = user?.role === 'director'
     ? (

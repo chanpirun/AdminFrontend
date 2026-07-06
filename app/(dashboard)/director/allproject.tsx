@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Folders } from "lucide-react";
 import type { Project, ProjectVisibility } from "@/data/projects";
 import ProjectList from "@/components/project-list";
-import { fetchProjectsFromApi, getAuthToken } from "@/lib/submissions";
+import { fetchProjectsFromApi } from "@/lib/submissions";
+import { useAuth } from "@/context/AuthContext";
+
 
 type Filter = "all" | ProjectVisibility;
 
@@ -14,17 +16,18 @@ export default function AllProject() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     async function load() {
-      const token = getAuthToken();
-      if (!token) {
+      if (!user) {
         setError("Please sign in to view repository data.");
         setLoading(false);
         return;
       }
 
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setProjects(rows);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load repository data.");
@@ -34,7 +37,7 @@ export default function AllProject() {
     }
 
     load();
-  }, []);
+  }, [user]);
 
   const publicCount = projects.filter((p) => p.visibility === "public").length;
   const privateCount = projects.filter((p) => p.visibility === "private").length;

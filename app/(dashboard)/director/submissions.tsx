@@ -11,9 +11,9 @@ import SubmissionReviewModal from "@/components/submission-review-modal";
 import { useAuth } from "@/context/AuthContext";
 import {
   fetchProjectsFromApi,
-  getAuthToken,
   mapSubmissionToProject,
 } from "@/lib/submissions";
+
 
 function ReviewBadge({ status }: { status: ProjectStatus }) {
   const styles: Record<ProjectStatus, { bg: string; text: string; border: string; icon: any }> = {
@@ -81,13 +81,11 @@ export default function DirectorSubmissions() {
   const [selected, setSelected] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Read token synchronously from localStorage on first render
-  const [token] = useState<string | null>(() => getAuthToken());
-  const { clearSession } = useAuth();
+  const { user, clearSession } = useAuth();
 
   useEffect(() => {
     async function load() {
-      if (!token) {
+      if (!user) {
         setError("Session expired. Please log in again.");
         setLoading(false);
         return;
@@ -95,11 +93,10 @@ export default function DirectorSubmissions() {
       setLoading(true);
       setError(null);
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setList(rows);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to load submissions.";
-        // If token is invalid/expired, clear session and force re-login
         if (msg.toLowerCase().includes('unauthenticated') || msg.toLowerCase().includes('unauthorized')) {
           clearSession();
           return;
@@ -110,7 +107,8 @@ export default function DirectorSubmissions() {
       }
     }
     load();
-  }, [token]);
+  }, [user]);
+
 
   const counts: Record<FilterTab, number> = {
     all: list.length,
@@ -142,7 +140,7 @@ export default function DirectorSubmissions() {
     id: string,
     visibility: ProjectVisibility,
   ) {
-    if (!token) {
+    if (!user) {
       setError("Please sign in again to update submissions.");
       return;
     }
@@ -151,7 +149,6 @@ export default function DirectorSubmissions() {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         visibility,
@@ -173,7 +170,7 @@ export default function DirectorSubmissions() {
     status: ProjectStatus,
     comment?: string,
   ) {
-    if (!token) {
+    if (!user) {
       setError("Please sign in again to update submissions.");
       return;
     }
@@ -183,7 +180,6 @@ export default function DirectorSubmissions() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           status,
@@ -210,7 +206,7 @@ export default function DirectorSubmissions() {
     );
     if (!confirmed) return;
 
-    if (!token) {
+    if (!user) {
       setError("Please sign in again to delete submissions.");
       return;
     }
@@ -218,9 +214,6 @@ export default function DirectorSubmissions() {
     try {
       const response = await fetch(`/api/submissions/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       let payload: { message?: string } = {};

@@ -50,7 +50,7 @@ function RoleBadge({ role }: { role: UserRole }) {
 }
 
 export default function RoleManagement() {
-  const { token, clearSession } = useAuth();
+  const { user, clearSession } = useAuth();
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -58,18 +58,14 @@ export default function RoleManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-  const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
-
   const fetchUsers = async () => {
     setLoading(true);
     setError('');
     try {
       const response = await axios.get(
-        `${API_URL}/members`,
+        '/api/members',
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -92,10 +88,10 @@ export default function RoleManagement() {
   };
 
   useEffect(() => {
-    if (token) {
+    if (user) {
       fetchUsers();
     }
-  }, [token]);
+  }, [user]);
 
   function stagePendingRole(userId: string, role: UserRole) {
     setPending((prev) => ({ ...prev, [userId]: role }));
@@ -108,11 +104,10 @@ export default function RoleManagement() {
     setError('');
     try {
       await axios.put(
-        `${API_URL}/members/${userId}`,
+        `/api/members/${userId}`,
         { role: newRole },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }

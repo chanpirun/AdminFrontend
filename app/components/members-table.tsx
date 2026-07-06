@@ -22,7 +22,7 @@ export function MembersTable({
   refreshTrigger = 0,
   onAddClick,
 }: MembersTableProps) {
-  const { token, clearSession } = useAuth();
+  const { user, clearSession } = useAuth();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,19 +32,15 @@ export function MembersTable({
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-  const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
-
   const fetchMembers = async () => {
     setLoading(true);
     setError('');
 
     try {
       const response = await axios.get(
-        `${API_URL}/members`,
+        '/api/members',
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -67,19 +63,14 @@ export function MembersTable({
   };
 
   useEffect(() => {
-    if (!token) return; // wait for AuthContext to populate the token
+    if (!user) return;
     fetchMembers();
-  }, [refreshTrigger, token]);
+  }, [refreshTrigger, user]);
 
   const handleDelete = async (id: number) => {
     try {
       await axios.delete(
-        `${API_URL}/members/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `/api/members/${id}`
       );
 
       setMembers(members.filter((member) => member.id !== id));

@@ -18,7 +18,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
+  token: string | null; // For backward compatibility, acts as dummy token if authenticated
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -33,31 +33,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-  const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
-
   // Check existing login on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
+    const checkAuth = async () => {
+      try {
+        const storedUser = localStorage.getItem('auth_user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          setToken('authenticated_dummy_token');
+        }
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-    }
+        // Always check /api/auth/me to verify cookie validity
+        const response = await axios.get('/api/auth/me');
+        if (response.data?.user) {
+          setUser(response.data.user);
+          setToken('authenticated_dummy_token');
+          localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+        } else {
+          // If no user returned, clear local state
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('auth_user');
+        }
+      } catch (err) {
+        // Failed auth check → clear local state
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('auth_user');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setLoading(false);
+    checkAuth();
   }, []);
 
-  // REAL DATABASE LOGIN
+  // REAL DATABASE LOGIN via HttpOnly Cookie proxy
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, { email, password }, {
-        validateStatus: (status) => status < 500 // Prevent axios from throwing on 4xx
+      const response = await axios.post('/api/auth/login', { email, password }, {
+        validateStatus: (status) => status < 500
       });
 
-      if (response.status === 401 || response.status === 422) {
+      if (response.status === 401 || response.status === 422 || response.status === 403) {
         throw new Error(response.data?.message || 'Invalid credentials');
       }
 
@@ -65,20 +83,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('An error occurred during login. Please try again.');
       }
 
-      const { token, user } = response.data;
+      const { user } = response.data;
 
       setUser(user);
-      setToken(token);
-      localStorage.setItem('auth_token', token);
+      setToken('authenticated_dummy_token');
       localStorage.setItem('auth_user', JSON.stringify(user));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (error: any) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK') {
-        throw new Error(
-          `Cannot reach API at ${API_URL}. Check backend server status and CORS allowed origins.`
-        );
-      }
-      // Re-throw our custom error or fallback
       throw new Error(error instanceof Error ? error.message : 'Invalid credentials');
     }
   };
@@ -87,22 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const clearSession = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    delete axios.defaults.headers.common['Authorization'];
     window.location.href = '/login';
   };
 
   // LOGOUT — calls API then clears session
   const logout = async () => {
     try {
-      if (token) {
-        await axios.post(
-          `${API_URL}/logout`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
+      await axios.post('/api/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

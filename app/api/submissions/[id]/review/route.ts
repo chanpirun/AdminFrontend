@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -10,7 +11,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
-    const authorization = request.headers.get("authorization") ?? "";
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+
     const body = await request.json();
 
     const upstream = await fetch(
@@ -20,7 +23,7 @@ export async function PATCH(
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: authorization,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(body),
         cache: "no-store",

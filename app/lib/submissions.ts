@@ -32,15 +32,12 @@ type SubmissionApiRecord = {
   created_at: string;
 };
 
-/**
- * Read the auth token synchronously from localStorage.
- * This is safe to call anywhere (hook or non-hook context).
- * Returns null on the server (SSR) or if no token is stored.
- */
-export function getAuthToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token");
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// SECURITY: getAuthToken() has been removed.
+// The Sanctum token is now stored in an HttpOnly cookie and is NEVER accessible
+// to JavaScript. All API functions call Next.js proxy routes or rewrites which
+// read the cookie server-side and inject the Authorization header automatically.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
   const pdfs = item.document_urls ?? [];
@@ -82,11 +79,9 @@ export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
   };
 }
 
-export async function fetchProjectsFromApi(token: string): Promise<Project[]> {
+export async function fetchProjectsFromApi(): Promise<Project[]> {
   const response = await fetch("/api/submissions", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
