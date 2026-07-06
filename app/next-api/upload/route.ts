@@ -10,24 +10,31 @@ export async function POST(request: NextRequest) {
     const token = await getTokenFromCookie();
     if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
 
+    const incomingFormData = await request.formData();
+    const outgoingFormData = new FormData();
+
+    incomingFormData.forEach((value, key) => {
+      outgoingFormData.append(key, value);
+    });
+
     const upstream = await fetch(`${backendBaseUrl()}/api/upload`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
-        "Content-Type": request.headers.get("content-type") ?? "multipart/form-data",
+        // Note: Let fetch set the correct multipart/form-data Content-Type header with its boundary
       },
-      body: request.body,
-      duplex: "half",
+      body: outgoingFormData,
       cache: "no-store",
-    } as any);
+    });
 
     const contentType = upstream.headers.get("content-type") ?? "";
     const body = contentType.includes("application/json")
       ? await upstream.json()
       : { message: await upstream.text() };
     return NextResponse.json(body, { status: upstream.status });
-  } catch {
+  } catch (error) {
+    console.error("Proxy error:", error);
     return NextResponse.json(
       { message: "Unable to reach backend upload service." },
       { status: 502 },
