@@ -80,7 +80,7 @@ export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
 }
 
 export async function fetchProjectsFromApi(): Promise<Project[]> {
-  const response = await fetch("/api/submissions", {
+  const response = await fetch("/next-api/submissions", {
     credentials: "include",
     cache: "no-store",
   });

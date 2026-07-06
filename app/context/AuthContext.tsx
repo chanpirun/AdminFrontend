@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Always check /api/auth/me to verify cookie validity
-        const response = await axios.get('/api/auth/me');
+        const response = await axios.get('/next-api/auth/me');
         if (response.data?.user) {
           setUser(response.data.user);
           setToken('authenticated_dummy_token');
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // REAL DATABASE LOGIN via HttpOnly Cookie proxy
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password }, {
+      const response = await axios.post('/next-api/auth/login', { email, password }, {
         validateStatus: (status) => status < 500
       });
 
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // LOGOUT — calls API then clears session
   const logout = async () => {
     try {
-      await axios.post('/api/auth/logout');
+      await axios.post('/next-api/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

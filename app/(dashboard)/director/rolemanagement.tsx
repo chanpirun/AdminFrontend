@@ -63,7 +63,7 @@ export default function RoleManagement() {
     setError('');
     try {
       const response = await axios.get(
-        '/api/members',
+        '/next-api/members',
         {
           headers: {
             'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export default function RoleManagement() {
     setError('');
     try {
       await axios.put(
-        `/api/members/${userId}`,
+        `/next-api/members/${userId}`,
         { role: newRole },
         {
           headers: {

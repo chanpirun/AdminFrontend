@@ -96,7 +96,7 @@ export default function Submissions() {
       return;
     }
 
-    const response = await fetch(`/api/submissions/${id}/review`, {
+    const response = await fetch(`/next-api/submissions/${id}/review`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -129,7 +129,7 @@ export default function Submissions() {
     }
 
     try {
-      const response = await fetch(`/api/submissions/${id}`, {
+      const response = await fetch(`/next-api/submissions/${id}`, {
         method: "DELETE",
       });
 

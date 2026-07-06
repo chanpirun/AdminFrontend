@@ -8,7 +8,7 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure:   IS_PRODUCTION,
+  secure:   false,
   sameSite: "lax" as const,
   path:     "/",
   maxAge:   60 * 60 * 24, // 24 hours
@@ -16,7 +16,7 @@ export const AUTH_COOKIE_OPTIONS = {
 
 export const USER_COOKIE_OPTIONS = {
   httpOnly: false, // readable by client-side JS
-  secure:   IS_PRODUCTION,
+  secure:   false,
   sameSite: "lax" as const,
   path:     "/",
   maxAge:   60 * 60 * 24,

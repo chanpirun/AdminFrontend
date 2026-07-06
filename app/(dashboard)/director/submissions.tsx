@@ -145,7 +145,7 @@ export default function DirectorSubmissions() {
       return;
     }
 
-    const response = await fetch(`/api/submissions/${id}/visibility`, {
+    const response = await fetch(`/next-api/submissions/${id}/visibility`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +176,7 @@ export default function DirectorSubmissions() {
     }
 
     try {
-      const response = await fetch(`/api/submissions/${id}/review`, {
+      const response = await fetch(`/next-api/submissions/${id}/review`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -212,7 +212,7 @@ export default function DirectorSubmissions() {
     }
 
     try {
-      const response = await fetch(`/api/submissions/${id}`, {
+      const response = await fetch(`/next-api/submissions/${id}`, {
         method: "DELETE",
       });
 

@@ -45,7 +45,7 @@ export function RecruitMemberForm({
 
     try {
       const response = await axios.post(
-        '/api/members',
+        '/next-api/members',
         formData,
         {
           headers: {

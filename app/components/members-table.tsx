@@ -38,7 +38,7 @@ export function MembersTable({
 
     try {
       const response = await axios.get(
-        '/api/members',
+        '/next-api/members',
         {
           headers: {
             'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export function MembersTable({
   const handleDelete = async (id: number) => {
     try {
       await axios.delete(
-        `/api/members/${id}`
+        `/next-api/members/${id}`
       );
 
       setMembers(members.filter((member) => member.id !== id));

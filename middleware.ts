@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. If it's an API route (/api/*), inject the Bearer token header if present.
+  // 1. If it's an API route (/api/* or /next-api/*), inject the Bearer token header if present.
   // ─────────────────────────────────────────────────────────────────────────────
-  if (pathname.startsWith("/api")) {
+  if (pathname.startsWith("/api") || pathname.startsWith("/next-api")) {
     const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
     if (token) {
       const requestHeaders = new Headers(request.headers);
