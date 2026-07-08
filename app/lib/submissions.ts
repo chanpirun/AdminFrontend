@@ -85,10 +85,14 @@ export async function fetchProjectsFromApi(): Promise<Project[]> {
     cache: "no-store",
   });
 
-  const json = await response.json();
+  let json: any = null;
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    json = await response.json();
+  }
 
   if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch submissions.");
+    throw new Error(json?.message ?? `Failed to fetch submissions (Status ${response.status}).`);
   }
 
   const rows: SubmissionApiRecord[] = json?.data ?? [];
