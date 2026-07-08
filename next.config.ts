@@ -47,15 +47,20 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    // Use INTERNAL_BACKEND_URL for server-side proxying to avoid Cloudflare SSL loop (502)
+    const rewriteTarget =
+      process.env.INTERNAL_BACKEND_URL ??
+      process.env.BACKEND_API_BASE_URL ??
+      BACKEND_URL;
     return {
       fallback: [
         {
           source: "/api/:path*",
-          destination: `${BACKEND_URL}/api/:path*`,
+          destination: `${rewriteTarget}/api/:path*`,
         },
         {
           source: "/next-api/:path*",
-          destination: `${BACKEND_URL}/api/:path*`,
+          destination: `${rewriteTarget}/api/:path*`,
         },
       ],
     };
