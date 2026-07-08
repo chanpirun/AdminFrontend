@@ -73,6 +73,15 @@ function previewType(url: string) {
   return "document";
 }
 
+function isFileTypePreviewable(url: string): boolean {
+  const extension = url.split("?")[0].split("#")[0].split(".").pop()?.toLowerCase();
+  if (!extension) return false;
+  const previewableExtensions = [
+    "pdf", "txt", "png", "jpg", "jpeg", "webp", "gif", "svg"
+  ];
+  return previewableExtensions.includes(extension);
+}
+
 function previewFilesFromUrls(fileUrls: string[], fallback: string): PreviewFile[] {
   return fileUrls.map((url, index) => ({
     name: fileNameFromUrl(url, `${fallback} ${index + 1}`),
@@ -198,8 +207,28 @@ function PreviewModal({
             </div>
           </div>
 
-          <div className="overflow-auto p-4">
-            {isImage ? (
+          <div className="overflow-auto p-4 flex items-center justify-center">
+            {!isFileTypePreviewable(file.url) ? (
+              <div className="flex min-h-[50vh] w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-400 border border-slate-100 shadow-sm">
+                  <FileText size={28} />
+                </div>
+                <h3 className="mt-4 text-base font-bold text-slate-800">
+                  Preview Unavailable
+                </h3>
+                <p className="mt-2 max-w-sm text-xs font-medium text-slate-500 leading-relaxed">
+                  This file type ({fileTypeFromUrl(file.url, "Unknown")}) cannot be previewed directly in the browser. Please download it to view its content.
+                </p>
+                <a
+                  href={file.url}
+                  download={file.name}
+                  className="mt-6 inline-flex items-center gap-2 rounded-lg bg-indigo-900 px-6 py-2.5 text-xs font-semibold text-white shadow-md shadow-indigo-100 transition hover:bg-indigo-800 cursor-pointer"
+                >
+                  <Download size={14} />
+                  Download {file.name}
+                </a>
+              </div>
+            ) : isImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={file.url}
